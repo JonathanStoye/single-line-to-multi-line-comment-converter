@@ -1,12 +1,35 @@
 #!/usr/bin/env node
 const fs = require('fs');
 const program = require('commander');
+const path = require('path');
 
 
 // matches if this is a single line comment with some content after the '//'
 const commentWithoutContent = /([ ]*)\/\//;
 // matches if this is a single line comment without any content after the '//'
 const commentWithContent = /([ ]*)\/\/(.+)/;
+
+
+/**
+ * @param {string} file - the file object which contains the info where to write to
+ * @param {string} content - the files content
+ *
+ * depending on the optional user input, this function writes the content either
+ * to the input file or the specified output file
+ */
+const writeFile = function writeFile({ filePath, prefix, output }, content) {
+  const { ext, name, dir } = path.parse(filePath);
+  let filename;
+
+  if (prefix) {
+    filename = path.format({ ext, name: `${ name }.${ prefix }`, dir });
+  } else if (output) {
+    filename = path.format({ base: output, dir });
+  } else {
+    filename = filePath;
+  }
+  fs.writeFileSync(filename, content, { encoding: 'utf8' });
+};
 
 
 /**
@@ -45,12 +68,13 @@ const replaceLine = function replaceLine(line, previousMatch, nextMatch) {
 };
 
 /**
- * @param {string} file - the file to process
+ * @param {object} file - the file object to process
  *
- * replaceComments is removing all single line comments which should be block comments
+ * replaceFile is removing all single line comments which should be block comments
  */
-const replaceComments = function replaceComments(file) {
-  const fileContent = fs.readFileSync(file, { encoding: 'utf8' });
+const replaceFile = function replaceFile(file) {
+  const { filePath } = file;
+  const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' });
   const contentLines = fileContent.split('\n');
 
   const replacedLines = contentLines.map((line, index, contentLines) => {
@@ -72,24 +96,63 @@ const replaceComments = function replaceComments(file) {
 
 
 /**
- * @param {string} file - the file to write to
- * @param {string} content - the files content
+ * @param file - the file object to process
  *
- * depending on the optional user input, this function writes the content either
- * to the input file or the specified output file
+ * replaceRecusive calls itself recusively for each folder it contains
  */
-const writeFile = function writeFile(file, content) {
-  if (program.output) {
-    fs.writeFileSync(program.output, content, { encoding: 'utf8' });
-  } else {
-    fs.writeFileSync(file, content, { encoding: 'utf8' });
-  }
+const replaceRecusive = function replaceRecusive(file) {
+  const { filePath, prefix } = file;
+  fs.stat(filePath, (err, stats) => {
+    if (err) {
+      throw err;
+    }
+
+    if (stats.isFile()) {
+      replaceFile(file);
+    } else if (stats.isDirectory()) {
+      fs.readdir(filePath, (err, folderFiles) => {
+        folderFiles.forEach((folderFile) => {
+          replaceRecusive({ filePath: path.join(filePath, folderFile), prefix });
+        });
+      });
+    }
+  });
 };
+
+
+/**
+ * @param {string} filePath
+ *
+ * checks initialy wheather the given path is a directory or
+ * a file andhandles options and processing accordingly
+ */
+const init = function init(filePath) {
+  fs.stat(filePath, (err, stats) => {
+    if (stats.isFile()) {
+      const file = { filePath };
+      if (program.output) {
+        file.output = program.output;
+      }
+      if (program.prefix) {
+        file.prefix = program.prefix;
+      }
+      replaceFile(file);
+    } else if (stats.isDirectory()) {
+      if (program.prefix) {
+        replaceRecusive({ filePath, prefix: program.prefix });
+      } else {
+        replaceRecusive({ filePath });
+      }
+    }
+  });
+};
+
 
 /**
  * read user input and attach the handler
  */
 program.arguments('<file>')
-  .option('-o, --output <outputfile>', 'The file to write the output to. Default is the input file.')
-  .action(replaceComments)
+  .option('-o, --output <outputfile>', 'The file to write the output to. Default is the input file. Will be ignored if <file> is a folder.')
+  .option('-p, --prefix <fileprefix>', 'Each processed filed will get the prefix inserted before the file extension. --prefix has priority over --output')
+  .action(init)
   .parse(process.argv);
