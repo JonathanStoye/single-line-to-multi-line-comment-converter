@@ -22,5 +22,8 @@
     "replace"
   ],
   "author": "mail@jonathanstoye.de",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "commander": "^2.9.0"
+  }
 }
