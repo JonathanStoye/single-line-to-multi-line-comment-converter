@@ -47,6 +47,8 @@ will turn into
 node index.js testFile.js
 ```
 
+or
+
 ```
 node index.js testfolder/
 ```
