@@ -5,9 +5,9 @@ const path = require('path');
 
 
 // matches if this is a single line comment with some content after the '//'
-const commentWithoutContent = /([ ]*)\/\//;
+const commentWithoutContent = /^([ ]*)\/\//;
 // matches if this is a single line comment without any content after the '//'
-const commentWithContent = /([ ]*)\/\/(.+)/;
+const commentWithContent = /^([ ]*)\/\/(.+)/;
 
 
 /**

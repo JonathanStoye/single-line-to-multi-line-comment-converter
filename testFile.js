@@ -1,6 +1,15 @@
 /* eslint-disable
     require-jsdoc,
 */
+
+module.exports = {
+
+  //
+  // Server
+  //
+  apiUrl: 'http://localhost'
+};
+
 // adfafafa // asfasfasf //
 //
 // External dependencies
