@@ -28,7 +28,13 @@ const writeFile = function writeFile({ filePath, prefix, output }, content) {
   } else {
     filename = filePath;
   }
-  fs.writeFileSync(filename, content, { encoding: 'utf8' });
+  fs.writeFile(filename, content, { encoding: 'utf8' }, (err) => {
+    if (err) {
+      throw err;
+    } else {
+      console.info(`Successfully wrote ${ filename }`);
+    }
+  });
 };
 
 
@@ -96,19 +102,24 @@ const replaceFile = function replaceFile(file) {
 
 
 /**
- * @param file - the file object to process
+ * @param {object} file - the file object to process
  *
  * replaceRecusive calls itself recusively for each folder it contains
  */
 const replaceRecusive = function replaceRecusive(file) {
   const { filePath, prefix } = file;
+  const fileExt = path.parse(filePath).ext;
   fs.stat(filePath, (err, stats) => {
     if (err) {
       throw err;
     }
 
     if (stats.isFile()) {
-      replaceFile(file);
+      if (fileExt === '.js') {
+        replaceFile(file);
+      } else {
+        console.info(`Skipped file ${ filePath }. Not a js file.`);
+      }
     } else if (stats.isDirectory()) {
       fs.readdir(filePath, (err, folderFiles) => {
         folderFiles.forEach((folderFile) => {
