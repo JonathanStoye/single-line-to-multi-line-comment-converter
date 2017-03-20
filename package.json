@@ -1,17 +1,17 @@
 {
-  "name": "js-comment-replacer",
-  "version": "1.1.1",
+  "name": "single-line-to-multi-line-comment-converter",
+  "version": "1.1.2",
   "description": "A small tool to replace multiple single line comments with block comments",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bin": {
-    "js-comment-replacer": "./index.js"
+    "sl2ml": "./index.js"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/JonathanStoye/js-comment-replacer"
+    "url": "https://github.com/JonathanStoye/single-line-to-multi-line-comment-converter"
   },
   "keywords": [
     "comments",
