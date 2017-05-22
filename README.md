@@ -1,9 +1,9 @@
 [![eslint version](https://img.shields.io/badge/eslint-v3.15-brightgreen.svg)](https://img.shields.io/badge/eslint-v3.15-brightgreen.svg)
-[![npm version](https://img.shields.io/badge/npm-v1.1.2-brightgreen.svg)](https://img.shields.io/badge/npm-v1.1.2-brightgreen.svg)
+[![npm version](https://img.shields.io/badge/npm-v1.2.2-brightgreen.svg)](https://img.shields.io/badge/npm-v1.2.2-brightgreen.svg)
 [![license](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://img.shields.io/badge/license-MIT-brightgreen.svg)
 
 # single-line-to-multi-line-comment-converter
-Replaces single line comments in js with block comments if appropriate. 
+Replaces single line comments in js with block comments if appropriate. Takes `.gitignore` into account and ignores hidden files on default as well.
 
 ### E.g.:
 

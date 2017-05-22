@@ -1,6 +1,6 @@
 {
   "name": "single-line-to-multi-line-comment-converter",
-  "version": "1.1.2",
+  "version": "1.2.2",
   "description": "A small tool to replace multiple single line comments with block comments",
   "main": "index.js",
   "scripts": {
@@ -24,7 +24,8 @@
   "author": "mail@jonathanstoye.de",
   "license": "MIT",
   "dependencies": {
-    "commander": "^2.9.0"
+    "commander": "^2.9.0",
+    "ignore": "^3.3.3"
   },
   "devDependencies": {
     "eslint": "^3.15.0"

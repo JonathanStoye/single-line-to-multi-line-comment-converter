@@ -2,19 +2,22 @@
 const fs = require('fs');
 const program = require('commander');
 const path = require('path');
+const ignore = require('ignore');
 
 
-// matches if this is a single line comment with some content after the '//'
+// Matches if this is a single line comment with some content after the '//'
 const commentWithoutContent = /^([ ]*)\/\//;
-// matches if this is a single line comment without any content after the '//'
+// Matches if this is a single line comment without any content after the '//'
 const commentWithContent = /^([ ]*)\/\/(.+)/;
 
+// The files that should be ignored beacuse of the gitignore
+const filesToIgnore = ignore().add(fs.readFileSync('.gitignore').toString());
 
 /**
  * @param {string} file - the file object which contains the info where to write to
  * @param {string} content - the files content
  *
- * depending on the optional user input, this function writes the content either
+ * Depending on the optional user input, this function writes the content either
  * to the input file or the specified output file
  */
 const writeFile = function writeFile({ filePath, prefix, output }, content) {
@@ -76,9 +79,14 @@ const replaceLine = function replaceLine(line, previousMatch, nextMatch) {
 /**
  * @param {object} file - the file object to process
  *
- * replaceFile is removing all single line comments which should be block comments
+ * Is removing all single line comments which should be block comments
  */
 const replaceFile = function replaceFile(file) {
+  const shouldBeIgnored = filesToIgnore.ignores(file.filePath);
+  if (shouldBeIgnored) {
+    return;
+  }
+
   const { filePath } = file;
   const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' });
   const contentLines = fileContent.split('\n');
@@ -104,7 +112,7 @@ const replaceFile = function replaceFile(file) {
 /**
  * @param {object} file - the file object to process
  *
- * replaceRecusive calls itself recusively for each folder it contains
+ * Calls itself recusively for each folder it contains
  */
 const replaceRecusive = function replaceRecusive(file) {
   const { filePath, prefix } = file;
@@ -117,7 +125,7 @@ const replaceRecusive = function replaceRecusive(file) {
     if (stats.isFile()) {
       if (fileExt === '.js') {
         replaceFile(file);
-      } else {
+      } else if (fileExt !== '') {
         console.info(`Skipped file ${ filePath }. Not a js file.`);
       }
     } else if (stats.isDirectory()) {
@@ -134,7 +142,7 @@ const replaceRecusive = function replaceRecusive(file) {
 /**
  * @param {string} filePath
  *
- * checks initialy wheather the given path is a directory or
+ * Checks initialy wheather the given path is a directory or
  * a file andhandles options and processing accordingly
  */
 const init = function init(filePath) {
@@ -160,7 +168,7 @@ const init = function init(filePath) {
 
 
 /**
- * read user input and attach the handler
+ * Read user input and attach the handler
  */
 program.arguments('<file>')
   .option('-o, --output <outputfile>', 'The file to write the output to. Default is the input file. Will be ignored if <file> is a folder.')
